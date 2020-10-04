@@ -1,0 +1,13 @@
+
+SELECT SUM(price * quantity)
+FROM (
+		SELECT s.product,p.price_effective_date,s.sales_date, s.sales_date - p.price_effective_date gap, p.price,s.quantity
+		,  RANK() OVER (PARTITION BY s.product,s.sales_date ORDER BY gap ASC) rank_number
+		FROM sales s
+		CROSS JOIN product p
+		on p.product = s.product
+		WHERE s.sales_date >= p.price_effective_date
+		Order By s.product, s.sales_date, p.price_effective_date
+    ) t
+
+WHERE rank_number = 1
